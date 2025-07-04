@@ -1,13 +1,16 @@
-import BarsIcon from '@/icons/BarsIcon';
+interface HeaderProps {
+  left?: React.ReactNode;
+  center?: React.ReactNode;
+  right?: React.ReactNode;
+}
 
-const Header = () => {
+const Header = ({ left, center, right }: HeaderProps) => {
   return (
     <div>
       <header className="flex items-center justify-between fixed top-0 left-0 right-0 p-4 bg-white shadow-xs z-10">
-        <h1 className="text-2xl font-bold">ReadOn</h1>
-        <button className="rounded-md">
-          <BarsIcon />
-        </button>
+        <div className="flex items-center gap-4">{left}</div>
+        <div className="flex-1 text-center">{center}</div>
+        <div className="flex items-center gap-4">{right}</div>
       </header>
     </div>
   );

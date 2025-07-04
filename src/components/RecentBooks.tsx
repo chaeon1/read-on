@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { BookCard } from '@/components/BookCard';
-import type { Book } from '../types/book';
+import type { Book } from '@/types/book';
 import AngleDownIcon from '@/icons/AngleDownIcon';
 
 const mockBooks: Book[] = [
