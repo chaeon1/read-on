@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { BookCard } from '@/components/BookCard';
 import type { Book } from '@/types/book';
 import AngleDownIcon from '@/icons/AngleDownIcon';
+import AngleUpIcon from '@/icons/AngleUpIcon';
 
 const mockBooks: Book[] = [
   {
@@ -72,13 +73,22 @@ const mockBooks: Book[] = [
   },
 ];
 
+const INITIAL_COUNT = 3;
+const STEP = 3;
+
 const RecentBooks = () => {
   const [books] = useState<Book[]>(mockBooks);
-  const [visibleCount, setVisibleCount] = useState(3);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+
+  const isAllVisible = visibleCount >= books.length;
   const visibleBooks = books.slice(0, visibleCount);
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => Math.min(prev + 3, books.length));
+    setVisibleCount((prev) => Math.min(prev + STEP, books.length));
+  };
+
+  const handleCollapse = () => {
+    setVisibleCount(INITIAL_COUNT);
   };
 
   return (
@@ -97,7 +107,14 @@ const RecentBooks = () => {
           </div>
         ))}
       </div>
-      {visibleCount < books.length && (
+      {isAllVisible ? (
+        <button
+          onClick={handleCollapse}
+          className="flex items-center justify-center py-2 mt-4 rounded-lg bg-gray-100 hover:bg-gray-200"
+        >
+          <AngleUpIcon />
+        </button>
+      ) : (
         <button
           onClick={handleLoadMore}
           className="flex items-center justify-center py-2 mt-4 rounded-lg bg-gray-100 hover:bg-gray-200"
