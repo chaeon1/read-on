@@ -7,6 +7,9 @@ import InputField from '@/components/common/InputField';
 import PasswordField from '@/components/common/PasswordField';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../lib/firebase';
 
 const signInSchema = z.object({
   email: z.string().email('올바른 이메일 형식이 아닙니다.'),
@@ -16,6 +19,8 @@ const signInSchema = z.object({
 type SignInForm = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -25,8 +30,14 @@ const SignIn = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = (data: SignInForm) => {
-    console.log('로그인 요청:', data);
+  const onSubmit = async (data: SignInForm) => {
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      console.log('로그인 성공:', data);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('로그인 실패:', error);
+    }
   };
 
   return (

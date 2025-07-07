@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import InputField from '@/components/common/InputField';
 import Button from '@/components/ui/Button';
 import CheckIcon from '@/icons/CheckIcon';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../../lib/firebase';
 
 const resetSchema = z.object({
   email: z.string().email('올바른 이메일 형식이 아닙니다.'),
@@ -27,8 +29,14 @@ const ResetPassword = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = (data: ResetForm) => {
-    setSubmittedEmail(data.email);
+  const onSubmit = async (data: ResetForm) => {
+    try {
+      await sendPasswordResetEmail(auth, data.email);
+      setSubmittedEmail(data.email);
+      console.log('비밀번호 재설정 이메일 전송 성공:', data.email);
+    } catch (error) {
+      console.error('비밀번호 재설정 이메일 전송 실패:', error);
+    }
   };
 
   if (submittedEmail) {

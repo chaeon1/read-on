@@ -6,6 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import InputField from '@/components/common/InputField';
 import PasswordField from '@/components/common/PasswordField';
 import Button from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../lib/firebase';
 
 const signUpSchema = z
   .object({
@@ -21,6 +24,8 @@ const signUpSchema = z
 type SignUpForm = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -30,8 +35,14 @@ const SignUp = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = (data: SignUpForm) => {
-    console.log('회원가입 요청:', data);
+  const onSubmit = async (data: SignUpForm) => {
+    try {
+      await createUserWithEmailAndPassword(auth, data.email, data.password);
+      console.log('회원 가입 성공:', data);
+      router.push('/signin');
+    } catch (error) {
+      console.error('회원 가입 실패:', error);
+    }
   };
 
   return (
