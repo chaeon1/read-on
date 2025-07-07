@@ -13,12 +13,16 @@
     "test": "jest"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.1.1",
+    "clsx": "^2.1.1",
     "firebase": "^11.9.1",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.59.0",
     "react-slick": "^0.30.3",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "zod": "^3.25.73"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.0.0",
