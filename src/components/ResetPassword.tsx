@@ -10,15 +10,20 @@ import Button from '@/components/ui/Button';
 import CheckIcon from '@/icons/CheckIcon';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
+import { getFirebaseAuthErrorMessage } from '@/utils/firebaseErrorMessages';
 
 const resetSchema = z.object({
-  email: z.string().email('올바른 이메일 형식이 아닙니다.'),
+  email: z
+    .string({ required_error: '이메일을 입력해주세요.' })
+    .min(1, '이메일을 입력해주세요.')
+    .email('올바른 이메일 형식이 아닙니다.'),
 });
 
 type ResetForm = z.infer<typeof resetSchema>;
 
 const ResetPassword = () => {
   const [submittedEmail, setSubmittedEmail] = useState('');
+  const [formError, setFormError] = useState('');
 
   const {
     register,
@@ -30,12 +35,13 @@ const ResetPassword = () => {
   });
 
   const onSubmit = async (data: ResetForm) => {
+    setFormError('');
     try {
       await sendPasswordResetEmail(auth, data.email);
       setSubmittedEmail(data.email);
-      console.log('비밀번호 재설정 이메일 전송 성공:', data.email);
     } catch (error) {
-      console.error('비밀번호 재설정 이메일 전송 실패:', error);
+      const message = getFirebaseAuthErrorMessage(error);
+      setFormError(message);
     }
   };
 
@@ -43,7 +49,7 @@ const ResetPassword = () => {
     return (
       <div className="flex flex-col h-dvh">
         <div className="flex-1 pt-24">
-          <div className="border flex-1 flex flex-col justify-center items-center text-center gap-8">
+          <div className="flex-1 flex flex-col justify-center items-center text-center gap-8">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
               <CheckIcon />
             </div>
@@ -92,6 +98,7 @@ const ResetPassword = () => {
             error={errors.email?.message}
             placeholder="name@email.com"
             type="email"
+            aria-invalid={!!errors.email}
           />
         </div>
 
@@ -103,8 +110,17 @@ const ResetPassword = () => {
           </Link>
         </div>
 
+        {formError && (
+          <p className="text-sm text-red-500 mb-4 text-center">{formError}</p>
+        )}
+
         <div className="mt-12">
-          <Button type="submit" variant="primary" disabled={!isValid}>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={!isValid}
+            aria-disabled={!isValid}
+          >
             재설정 링크 보내기
           </Button>
         </div>

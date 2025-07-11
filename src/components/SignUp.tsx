@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,11 +10,17 @@ import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
+import { getFirebaseAuthErrorMessage } from '@/utils/firebaseErrorMessages';
 
 const signUpSchema = z
   .object({
-    email: z.string().email('올바른 이메일 형식이 아닙니다.'),
-    password: z.string().min(8, '비밀번호는 최소 8자 이상이어야 합니다.'),
+    email: z
+      .string({ required_error: '이메일을 입력해주세요.' })
+      .min(1, '이메일을 입력해주세요.')
+      .email('올바른 이메일 형식이 아닙니다.'),
+    password: z
+      .string({ required_error: '비밀번호를 입력해주세요.' })
+      .min(8, '비밀번호는 최소 8자 이상이어야 합니다.'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -25,6 +32,7 @@ type SignUpForm = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
   const router = useRouter();
+  const [formError, setFormError] = useState('');
 
   const {
     register,
@@ -36,12 +44,13 @@ const SignUp = () => {
   });
 
   const onSubmit = async (data: SignUpForm) => {
+    setFormError('');
     try {
       await createUserWithEmailAndPassword(auth, data.email, data.password);
-      console.log('회원 가입 성공:', data);
       router.push('/signin');
     } catch (error) {
-      console.error('회원 가입 실패:', error);
+      const message = getFirebaseAuthErrorMessage(error);
+      setFormError(message);
     }
   };
 
@@ -60,6 +69,7 @@ const SignUp = () => {
             error={errors.email?.message}
             type="email"
             placeholder="name@email.com"
+            aria-invalid={!!errors.email}
           />
           <PasswordField
             id="password"
@@ -67,6 +77,7 @@ const SignUp = () => {
             {...register('password')}
             error={errors.password?.message}
             placeholder="영문, 숫자, 특수문자 조합 8 - 12자리"
+            aria-invalid={!!errors.password}
           />
           <PasswordField
             id="confirmPassword"
@@ -74,12 +85,22 @@ const SignUp = () => {
             {...register('confirmPassword')}
             error={errors.confirmPassword?.message}
             placeholder="영문, 숫자, 특수문자 조합 8 - 12자리"
+            aria-invalid={!!errors.confirmPassword}
           />
         </div>
+
+        {formError && (
+          <p className="text-sm text-red-500 mb-4 text-center">{formError}</p>
+        )}
       </div>
 
       <div className="sticky bottom-0 py-4 shadow-t">
-        <Button type="submit" variant="secondary" disabled={!isValid}>
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={!isValid}
+          aria-disabled={!isValid}
+        >
           가입하기
         </Button>
       </div>
